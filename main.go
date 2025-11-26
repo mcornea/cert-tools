@@ -137,6 +137,15 @@ func handleCreate(args []string) {
 	fs.Parse(args)
 
 	hosts := fs.Args()
+
+	// Check if any "hostname" looks like a flag (user put flags after hostnames)
+	for _, h := range hosts {
+		if strings.HasPrefix(h, "-") {
+			fmt.Fprintf(os.Stderr, "Error: flags must come before hostnames (found %q after hostname)\n", h)
+			fmt.Fprintln(os.Stderr, "\nUsage: cert-tools create [options] HOST [HOST...]")
+			os.Exit(1)
+		}
+	}
 	if len(hosts) == 0 {
 		fmt.Fprintln(os.Stderr, "Error: at least one hostname is required")
 		fmt.Fprintln(os.Stderr, "\nUsage: cert-tools create [--out DIR] [options] HOST [HOST...]")
