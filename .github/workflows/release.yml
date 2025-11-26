@@ -1,0 +1,35 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build linux/amd64
+        run: GOOS=linux GOARCH=amd64 go build -o cert-tools-linux-amd64 .
+
+      - name: Build linux/arm64
+        run: GOOS=linux GOARCH=arm64 go build -o cert-tools-linux-arm64 .
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            cert-tools-linux-amd64
+            cert-tools-linux-arm64
+          generate_release_notes: true
