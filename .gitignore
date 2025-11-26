@@ -1,0 +1,15 @@
+# Binaries
+cert-tools
+*.exe
+
+# Output directory
+certs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
