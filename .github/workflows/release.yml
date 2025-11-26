@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
+          cache: false
 
       - name: Build linux/amd64
         run: GOOS=linux GOARCH=amd64 go build -o cert-tools-linux-amd64 .
