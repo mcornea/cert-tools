@@ -183,8 +183,24 @@ func Load(dir string) (*CA, error) {
 // LoadOrCreate loads an existing CA or creates a new one if it doesn't exist
 func LoadOrCreate(dir string, opts Options) (*CA, bool, error) {
 	certPath := filepath.Join(dir, "ca.crt")
-	if _, err := os.Stat(certPath); os.IsNotExist(err) {
-		// CA doesn't exist, create new one
+	keyPath := filepath.Join(dir, "ca.key")
+
+	_, certErr := os.Stat(certPath)
+	_, keyErr := os.Stat(keyPath)
+
+	certExists := certErr == nil
+	keyExists := keyErr == nil
+
+	// Check for inconsistent state (one file exists but not the other)
+	if certExists && !keyExists {
+		return nil, false, fmt.Errorf("CA certificate exists but private key is missing; remove %s and re-initialize the CA", certPath)
+	}
+	if !certExists && keyExists {
+		return nil, false, fmt.Errorf("CA private key exists but certificate is missing; remove %s and re-initialize the CA", keyPath)
+	}
+
+	// Neither file exists, create new CA
+	if !certExists && !keyExists {
 		ca, err := Generate(opts)
 		if err != nil {
 			return nil, false, err
@@ -195,7 +211,7 @@ func LoadOrCreate(dir string, opts Options) (*CA, bool, error) {
 		return ca, true, nil // true = newly created
 	}
 
-	// CA exists, load it
+	// Both files exist, load the CA
 	ca, err := Load(dir)
 	if err != nil {
 		return nil, false, err

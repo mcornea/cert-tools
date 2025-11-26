@@ -96,10 +96,6 @@ func Generate(authority *ca.CA, hostname string, opts Options) (*HostCert, error
 		template.IPAddresses = []net.IP{ip}
 	} else {
 		template.DNSNames = []string{hostname}
-		// Also add wildcard if it's a domain
-		if !strings.HasPrefix(hostname, "*.") && strings.Contains(hostname, ".") {
-			// Don't add wildcard for simple hostnames like "localhost"
-		}
 	}
 
 	// Sign the certificate with the CA
